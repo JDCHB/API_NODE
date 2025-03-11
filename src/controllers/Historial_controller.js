@@ -64,12 +64,12 @@ const historialController = {
     async crearHistorial(req, res) {
         try {
             const { usuario_id, latitud, longitud, direccion } = req.body;
-    
+
             // Validación de datos
             if (!usuario_id || !latitud || !longitud || !direccion) {
                 return res.status(400).json({ message: 'Todos los campos son obligatorios' });
             }
-    
+
             // Crear historial en la base de datos
             const result = await Historial_Ubicacion.crearHistorial(usuario_id, latitud, longitud, direccion);
             return res.status(201).json(result);
