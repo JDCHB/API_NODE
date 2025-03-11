@@ -1,4 +1,4 @@
-const connection = require('../configuration/DB_config');
+const connection = require('../config/DB_config');
 const axios = require('axios');
 
 const FASTAPI_WEBHOOK_URL = 'http://127.0.0.1:8000/webhook/ubicacion';
