@@ -1,4 +1,4 @@
-const connection = require('../config/DB_config');
+const connection = require('../configuration/DB_config');
 const axios = require('axios');
 
 const FASTAPI_WEBHOOK_URL = 'http://127.0.0.1:8000/webhook/ubicacion';
@@ -41,7 +41,6 @@ class Historial_Ubicacion {
             throw new Error('Error al guardar el historial');
         }
     }
-
     // Actualizar historial si existe, de lo contrario, insertar
     async actualizarHistorial(usuario_id, latitud, longitud, direccion) {
         try {
@@ -85,10 +84,7 @@ class Historial_Ubicacion {
                 [usuario_id]
             );
 
-            if (result.length === 0) {
-                return { message: 'No se encontraron ubicaciones para este usuario' };
-            }
-            return result;
+            return result.length ? result : { message: 'No se encontraron ubicaciones' };
         } catch (error) {
             console.error('❌ Error al obtener ubicaciones:', error);
             throw new Error('Error al obtener ubicaciones');
@@ -114,5 +110,4 @@ class Historial_Ubicacion {
         }
     }
 }
-
 module.exports = new Historial_Ubicacion();
