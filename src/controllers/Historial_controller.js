@@ -1,8 +1,4 @@
 const Historial_Ubicacion = require('../models/Historial_model'); // Importa el modelo
-const axios = require('axios'); // Para enviar webhooks a FastAPI
-
-// URL de la API en FastAPI que recibirá los webhooks
-const FASTAPI_WEBHOOK_URL = 'http://tu-servidor-python.com/sincronizar-ubicacion';
 
 const historialController = {
     // Obtener todo el historial de ubicaciones
@@ -21,7 +17,7 @@ const historialController = {
     async obtenerHistorialPorUsuario(req, res) {
         const { usuario_id } = req.params;
         try {
-            const result = await Historial_Ubicacion.ObtenerUbicacionPorUsuario(usuario_id);
+            const result = await Historial_Ubicacion.obtenerUbicacionPorUsuario(usuario_id);
             res.json(result);
         } catch (error) {
             res.status(500).json({ error: 'Error al obtener historial' });
@@ -31,19 +27,8 @@ const historialController = {
     // Registrar o actualizar historial de ubicación
     async actualizarHistorial(req, res) {
         const { usuario_id, latitud, longitud, direccion } = req.body;
-
         try {
             const result = await Historial_Ubicacion.actualizarHistorial(usuario_id, latitud, longitud, direccion);
-
-            // 📌 Enviar webhook a FastAPI después de actualizar la ubicación
-            await axios.post(FASTAPI_WEBHOOK_URL, {
-                usuario_id,
-                latitud,
-                longitud,
-                direccion,
-                timestamp: new Date().toISOString()
-            });
-
             res.json(result);
         } catch (error) {
             res.status(500).json({ error: 'Error al actualizar historial' });
@@ -61,15 +46,16 @@ const historialController = {
         }
     },
 
+    // Crear historial
     async crearHistorial(req, res) {
         try {
             const { usuario_id, latitud, longitud, direccion } = req.body;
-    
+
             // Validación de datos
             if (!usuario_id || !latitud || !longitud || !direccion) {
                 return res.status(400).json({ message: 'Todos los campos son obligatorios' });
             }
-    
+
             // Crear historial en la base de datos
             const result = await Historial_Ubicacion.crearHistorial(usuario_id, latitud, longitud, direccion);
             return res.status(201).json(result);

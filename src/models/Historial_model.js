@@ -41,6 +41,7 @@ class Historial_Ubicacion {
             throw new Error('Error al guardar el historial');
         }
     }
+
     // Actualizar historial si existe, de lo contrario, insertar
     async actualizarHistorial(usuario_id, latitud, longitud, direccion) {
         try {
@@ -84,7 +85,10 @@ class Historial_Ubicacion {
                 [usuario_id]
             );
 
-            return result.length ? result : { message: 'No se encontraron ubicaciones' };
+            if (result.length === 0) {
+                return { message: 'No se encontraron ubicaciones para este usuario' };
+            }
+            return result;
         } catch (error) {
             console.error('❌ Error al obtener ubicaciones:', error);
             throw new Error('Error al obtener ubicaciones');
@@ -110,4 +114,5 @@ class Historial_Ubicacion {
         }
     }
 }
+
 module.exports = new Historial_Ubicacion();
