@@ -1,10 +1,14 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors'); // Importa el paquete cors
 const historialRoutes = require('./src/routes/Historial_routes');
 const imgRoutes = require('./src/routes/imgRoutes');
 
 const app = express();
 const PORT = 3000;
+
+// Configura CORS para permitir solicitudes desde cualquier origen
+app.use(cors());
 
 app.use(bodyParser.json());
 
