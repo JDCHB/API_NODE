@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const historialController = require('../controllers/historial_controller');
 
-const historialController = require('../controllers/Historial_controller');
+router.post('/', historialController.create);       // Crear un nuevo registro
+router.get('/', historialController.findAll);      // Obtener todos los registros
+router.get('/:id', historialController.findOne);  // Obtener un registro por ID
+router.put('/:id', historialController.update);   // Actualizar un registro
+router.delete('/:id', historialController.delete); // Eliminar un registro
 
-router.get('/historial', historialController.obtenerHistorial);
-router.get('/:usuario_id', historialController.obtenerHistorialPorUsuario);
-router.post('/historial', historialController.actualizarHistorial);
-router.put('/historial', historialController.desactivarUbicacion);
-router.post('/crear', historialController.crearHistorial);
+
+
 
 module.exports = router;

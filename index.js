@@ -1,19 +1,21 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = require('cors');
-
+const historialRoutes = require('./src/routes/Historial_routes');
 const imgRoutes = require('./src/routes/imgRoutes');
-const historialroutes = require('./src/routes/Historial_routes');
 
 const app = express();
 const PORT = 3000;
-app.use(cors());
 
 app.use(bodyParser.json());
 
+// Rutas
+app.use('/historial', historialRoutes);
 app.use('/imagenes', imgRoutes);
-app.use('/historial', historialroutes);
-
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
 });
+
+
+
+
+

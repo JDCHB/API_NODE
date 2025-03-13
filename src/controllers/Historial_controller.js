@@ -1,83 +1,66 @@
-const Historial_Ubicacion = require('../models/Historial_model'); // Importa el modelo
 const axios = require('axios'); // Para enviar webhooks a FastAPI
+const Historial_Ubicacion = require('../models/historial_model'); 
 
-// URL de la API en FastAPI que recibirá los webhooks
-const FASTAPI_WEBHOOK_URL = 'http://tu-servidor-python.com/sincronizar-ubicacion';
 
-const historialController = {
-    // Obtener todo el historial de ubicaciones
-    async obtenerHistorial(req, res) {
-        try {
-            Historial_Ubicacion.getAllHistorial((err, result) => {
-                if (err) return res.status(500).json({ error: err.message });
-                res.json(result);
-            });
-        } catch (error) {
-            res.status(500).json({ error: 'Error al obtener historial' });
-        }
-    },
-
-    // Obtener historial por usuario
-    async obtenerHistorialPorUsuario(req, res) {
-        const { usuario_id } = req.params;
-        try {
-            const result = await Historial_Ubicacion.ObtenerUbicacionPorUsuario(usuario_id);
-            res.json(result);
-        } catch (error) {
-            res.status(500).json({ error: 'Error al obtener historial' });
-        }
-    },
-
-    // Registrar o actualizar historial de ubicación
-    async actualizarHistorial(req, res) {
-        const { usuario_id, latitud, longitud, direccion } = req.body;
-
-        try {
-            const result = await Historial_Ubicacion.actualizarHistorial(usuario_id, latitud, longitud, direccion);
-
-            // 📌 Enviar webhook a FastAPI después de actualizar la ubicación
-            await axios.post(FASTAPI_WEBHOOK_URL, {
-                usuario_id,
-                latitud,
-                longitud,
-                direccion,
-                timestamp: new Date().toISOString()
-            });
-
-            res.json(result);
-        } catch (error) {
-            res.status(500).json({ error: 'Error al actualizar historial' });
-        }
-    },
-
-    // Desactivar ubicación activa
-    async desactivarUbicacion(req, res) {
-        const { usuario_id } = req.body;
-        try {
-            const result = await Historial_Ubicacion.desactivarUbicacion(usuario_id);
-            res.json(result);
-        } catch (error) {
-            res.status(500).json({ error: 'Error al desactivar ubicación' });
-        }
-    },
-
-    async crearHistorial(req, res) {
-        try {
-            const { usuario_id, latitud, longitud, direccion } = req.body;
-
-            // Validación de datos
-            if (!usuario_id || !latitud || !longitud || !direccion) {
-                return res.status(400).json({ message: 'Todos los campos son obligatorios' });
-            }
-
-            // Crear historial en la base de datos
-            const result = await Historial_Ubicacion.crearHistorial(usuario_id, latitud, longitud, direccion);
-            return res.status(201).json(result);
-        } catch (error) {
-            console.error('❌ Error al crear historial:', error);
-            return res.status(500).json({ message: 'Error interno del servidor' });
-        }
+exports.create = async (req, res) => {
+    try {
+        const { id_usuario, latitud, longitud, lugar } = req.body;
+        const id = await Historial_Ubicacion.create(id_usuario, latitud, longitud, lugar);
+        res.status(201).json({ id, message: 'Registro creado' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al crear el registro' });
     }
 };
 
-module.exports = historialController;
+// Obtener todos los registros
+exports.findAll = async (req, res) => {
+    try {
+        const registros = await Historial_Ubicacion.findAll();
+        res.status(200).json(registros);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener los registros' });
+    }
+};
+
+// Obtener un registro por ID
+exports.findOne = async (req, res) => {
+    try {
+        const registro = await Historial_Ubicacion.findOne(req.params.id);
+        if (registro) {
+            res.status(200).json(registro);
+        } else {
+            res.status(404).json({ error: 'Registro no encontrado' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener el registro' });
+    }
+};
+
+// Actualizar un registro
+exports.update = async (req, res) => {
+    try {
+        const { id_usuario, latitud, longitud, lugar, estado } = req.body;
+        const affectedRows = await Historial_Ubicacion.update(req.params.id, id_usuario, latitud, longitud, lugar, estado);
+        if (affectedRows > 0) {
+            res.status(200).json({ message: 'Registro actualizado' });
+        } else {
+            res.status(404).json({ error: 'Registro no encontrado' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Error al actualizar el registro' });
+    }
+};
+
+// Eliminar un registro
+exports.delete = async (req, res) => {
+    try {
+        const affectedRows = await Historial_Ubicacion.remove(req.params.id);
+        if (affectedRows > 0) {
+            res.status(200).json({ message: 'Registro eliminado' });
+        } else {
+            res.status(404).json({ error: 'Registro no encontrado' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Error al eliminar el registro' });
+    }
+};
